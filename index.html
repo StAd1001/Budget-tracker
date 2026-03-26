@@ -373,6 +373,15 @@ function saveEntry(entry) {
   persist();
 }
 
+function ensureEntry() {
+  const key = mk(state.year, state.month);
+  if (!state.data[key]) {
+    const entry = getEntry();
+    state.data = { ...state.data, [key]: entry };
+    persist();
+  }
+}
+
 function getIncItems(entry) { return entry.incomeItems && entry.incomeItems.length ? entry.incomeItems : [ni()]; }
 function getInvItems(entry) { return Array.isArray(entry.investing) && entry.investing.length ? entry.investing : [ni()]; }
 function getCatItems(entry, cat) {
@@ -410,11 +419,19 @@ function renderApp() {
   // Month nav
   const nav = el("div", { className: "month-nav" });
   const prevBtn = el("button", { className: "nav-btn" }, "‹");
-  prevBtn.addEventListener("click", () => { if (state.month === 0) { state.month = 11; state.year--; } else state.month--; render(); });
+  prevBtn.addEventListener("click", () => {
+    ensureEntry();
+    if (state.month === 0) { state.month = 11; state.year--; } else state.month--;
+    render();
+  });
   nav.appendChild(prevBtn);
   nav.appendChild(el("span", { className: "month-label" }, MONTHS[state.month] + " " + state.year));
   const nextBtn = el("button", { className: "nav-btn" }, "›");
-  nextBtn.addEventListener("click", () => { if (state.month === 11) { state.month = 0; state.year++; } else state.month++; render(); });
+  nextBtn.addEventListener("click", () => {
+    ensureEntry();
+    if (state.month === 11) { state.month = 0; state.year++; } else state.month++;
+    render();
+  });
   nav.appendChild(nextBtn);
   hdrInner.appendChild(nav);
 
