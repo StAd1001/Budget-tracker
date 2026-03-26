@@ -359,12 +359,14 @@ function updateSyncBadge() {
 // ── Entry helpers ─────────────────────────────────────────────────────────────
 function getEntry() {
   const key = mk(state.year, state.month);
-  if (state.data[key]) return state.data[key];
-  const { expenses, investing } = seedMonth(state.data, state.year, state.month, state.cats);
-  const inc = seedIncome(state.data, state.year, state.month);
-  const base = { income: "", expenses, investing };
-  if (inc) base.incomeItems = inc;
-  return base;
+  if (!state.data[key]) {
+    const { expenses, investing } = seedMonth(state.data, state.year, state.month, state.cats);
+    const inc = seedIncome(state.data, state.year, state.month);
+    const base = { income: "", expenses, investing };
+    if (inc) base.incomeItems = inc;
+    state.data = { ...state.data, [key]: base };
+  }
+  return state.data[key];
 }
 
 function saveEntry(entry) {
@@ -644,12 +646,12 @@ function renderExpand(items, onLabel, onAmount, onToggleRec, onRemove, onAdd, ad
     recBtn.addEventListener("click", () => onToggleRec(item.id));
 
     const labelInp = el("input", { className: "item-label", type: "text", value: item.label, placeholder: "Description" });
-    labelInp.addEventListener("change", e => onLabel(item.id, e.target.value));
+    labelInp.addEventListener("input", e => onLabel(item.id, e.target.value));
 
     const eurSpan = el("span", { className: "eur" }, "€");
 
     const amtInp = el("input", { className: "item-amount", type: "number", min: "0", value: item.amount, placeholder: "0" });
-    amtInp.addEventListener("change", e => onAmount(item.id, e.target.value));
+    amtInp.addEventListener("input", e => onAmount(item.id, e.target.value));
 
     const rmBtn = el("button", { className: "remove-btn", style: "font-size:15px;" }, "✕");
     rmBtn.addEventListener("click", () => onRemove(item.id));
