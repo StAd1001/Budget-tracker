@@ -280,17 +280,20 @@ function renderLoading() {
 }
 
 // ── Load / Persist ────────────────────────────────────────────────────────────
+// sheetsLoaded: true once we've successfully read from Google Sheets.
+// Until then, persist() is blocked so stale local data can never overwrite Sheets.
+let sheetsLoaded = false;
+
 function loadData() {
   state.loaded = false;
   state.syncStatus = "saving";
   render();
 
-  // 1. Load from localStorage immediately (instant, always works)
-  try {
-    const localData = localStorage.getItem("budget-data");
-    const localCats = localStorage.getItem("budget-cats");
-    if (localData) {
-      const parsed = JSON.parse(localData);
+  const s = makeStorage(state.scriptUrl);
+
+  Promise.all([s.get("budget-data"), s.get("budget-cats")])
+    .then(([d, c]) => {
+      const parsed = d ? JSON.parse(d) : {};
       for (const k in parsed) {
         const e = parsed[k];
         if (e.incomeItems) e.incomeItems = ensureIds(e.incomeItems);
@@ -298,62 +301,59 @@ function loadData() {
         if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
       }
       state.data = parsed;
-    }
-    if (localCats) state.cats = JSON.parse(localCats);
-  } catch(e) { /* ignore localStorage errors */ }
-
-  // 2. Then try to sync from Google Sheets (may be newer from another device)
-  const s = makeStorage(state.scriptUrl);
-  Promise.all([s.get("budget-data"), s.get("budget-cats")])
-    .then(([d, c]) => {
-      if (d) {
-        const parsed = JSON.parse(d);
-        for (const k in parsed) {
-          const e = parsed[k];
-          if (e.incomeItems) e.incomeItems = ensureIds(e.incomeItems);
-          if (e.investing) e.investing = ensureIds(e.investing);
-          if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
-        }
-        state.data = parsed;
-        localStorage.setItem("budget-data", d);
-      }
-      if (c) {
-        state.cats = JSON.parse(c);
-        localStorage.setItem("budget-cats", c);
-      }
+      state.cats = c ? JSON.parse(c) : [...DEFAULT_CATS];
       state.storage = s;
       state.syncStatus = "ok";
       state.syncError = "";
       state.loaded = true;
+      sheetsLoaded = true;
+
+      // Cache to localStorage as offline backup
+      try {
+        localStorage.setItem("budget-data", JSON.stringify(state.data));
+        localStorage.setItem("budget-cats", JSON.stringify(state.cats));
+      } catch(e) {}
+
       render();
     })
     .catch(err => {
-      // Sheets failed, but localStorage data is already loaded — still usable
+      // Sheets failed — try loading from localStorage as read-only fallback
       state.storage = s;
       state.syncStatus = "error";
-      state.syncError = err.message || "Sheets sync failed — using local data.";
+      state.syncError = err.message || "Sheets sync failed.";
+      try {
+        const localData = localStorage.getItem("budget-data");
+        const localCats = localStorage.getItem("budget-cats");
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          for (const k in parsed) {
+            const e = parsed[k];
+            if (e.incomeItems) e.incomeItems = ensureIds(e.incomeItems);
+            if (e.investing) e.investing = ensureIds(e.investing);
+            if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
+          }
+          state.data = parsed;
+        }
+        if (localCats) state.cats = JSON.parse(localCats);
+      } catch(e) {}
+      // sheetsLoaded stays false — persist() will NOT write back to Sheets
       state.loaded = true;
       render();
     });
-
-  // If we already have local data, show it immediately (don't wait for Sheets)
-  if (Object.keys(state.data).length > 0 || state.cats.length > 0) {
-    state.storage = s;
-    state.loaded = true;
-    render();
-  }
 }
 
-// Debounced persist — saves to localStorage immediately, syncs to Sheets after 600ms.
+// Debounced persist — only syncs to Sheets if Sheets loaded successfully.
 let _persistTimer = null;
 function persist() {
-  // Always save to localStorage immediately (instant, never fails)
+  if (!sheetsLoaded) return; // Never overwrite Sheets with stale/empty data
+
+  // Cache to localStorage as backup
   try {
     localStorage.setItem("budget-data", JSON.stringify(state.data));
     localStorage.setItem("budget-cats", JSON.stringify(state.cats));
-  } catch(e) { /* storage full — very unlikely */ }
+  } catch(e) {}
 
-  // Then sync to Google Sheets in the background
+  // Sync to Sheets after 600ms debounce
   if (!state.storage) return;
   state.syncStatus = "saving";
   updateSyncBadge();
