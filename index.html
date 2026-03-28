@@ -169,13 +169,19 @@ function seedIncome(data, y, m) {
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 function makeStorage(url) {
+  // GET for reads (small payloads — just a key param)
   function get(key) {
     return fetch(url + "?action=get&key=" + encodeURIComponent(key))
       .then(r => r.json()).then(j => j.ok ? j.value : null);
   }
+  // POST for writes (handles large data, text/plain avoids CORS preflight)
   function set(key, value) {
-    return fetch(url + "?action=set&key=" + encodeURIComponent(key) + "&value=" + encodeURIComponent(value))
-      .then(r => r.json());
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ action: "set", key, value }),
+      redirect: "follow"
+    }).then(r => r.json());
   }
   return { get, set };
 }
@@ -278,10 +284,13 @@ function loadData() {
   state.loaded = false;
   state.syncStatus = "saving";
   render();
-  const s = makeStorage(state.scriptUrl);
-  Promise.all([s.get("budget-data"), s.get("budget-cats")])
-    .then(([d, c]) => {
-      const parsed = d ? JSON.parse(d) : {};
+
+  // 1. Load from localStorage immediately (instant, always works)
+  try {
+    const localData = localStorage.getItem("budget-data");
+    const localCats = localStorage.getItem("budget-cats");
+    if (localData) {
+      const parsed = JSON.parse(localData);
       for (const k in parsed) {
         const e = parsed[k];
         if (e.incomeItems) e.incomeItems = ensureIds(e.incomeItems);
@@ -289,7 +298,29 @@ function loadData() {
         if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
       }
       state.data = parsed;
-      state.cats = c ? JSON.parse(c) : [...DEFAULT_CATS];
+    }
+    if (localCats) state.cats = JSON.parse(localCats);
+  } catch(e) { /* ignore localStorage errors */ }
+
+  // 2. Then try to sync from Google Sheets (may be newer from another device)
+  const s = makeStorage(state.scriptUrl);
+  Promise.all([s.get("budget-data"), s.get("budget-cats")])
+    .then(([d, c]) => {
+      if (d) {
+        const parsed = JSON.parse(d);
+        for (const k in parsed) {
+          const e = parsed[k];
+          if (e.incomeItems) e.incomeItems = ensureIds(e.incomeItems);
+          if (e.investing) e.investing = ensureIds(e.investing);
+          if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
+        }
+        state.data = parsed;
+        localStorage.setItem("budget-data", d);
+      }
+      if (c) {
+        state.cats = JSON.parse(c);
+        localStorage.setItem("budget-cats", c);
+      }
       state.storage = s;
       state.syncStatus = "ok";
       state.syncError = "";
@@ -297,17 +328,32 @@ function loadData() {
       render();
     })
     .catch(err => {
-      state.syncError = err.message || "Connection failed. Check your URL.";
+      // Sheets failed, but localStorage data is already loaded — still usable
+      state.storage = s;
       state.syncStatus = "error";
-      state.scriptUrl = "";
-      state.loaded = false;
+      state.syncError = err.message || "Sheets sync failed — using local data.";
+      state.loaded = true;
       render();
     });
+
+  // If we already have local data, show it immediately (don't wait for Sheets)
+  if (Object.keys(state.data).length > 0 || state.cats.length > 0) {
+    state.storage = s;
+    state.loaded = true;
+    render();
+  }
 }
 
-// Debounced persist — waits 600ms after the last edit before syncing.
+// Debounced persist — saves to localStorage immediately, syncs to Sheets after 600ms.
 let _persistTimer = null;
 function persist() {
+  // Always save to localStorage immediately (instant, never fails)
+  try {
+    localStorage.setItem("budget-data", JSON.stringify(state.data));
+    localStorage.setItem("budget-cats", JSON.stringify(state.cats));
+  } catch(e) { /* storage full — very unlikely */ }
+
+  // Then sync to Google Sheets in the background
   if (!state.storage) return;
   state.syncStatus = "saving";
   updateSyncBadge();
