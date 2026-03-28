@@ -10,41 +10,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 input, select, button, textarea { font-family: inherit; font-size: 14px; }
 input[type=number]::-webkit-inner-spin-button { opacity: 1; }
 button { cursor: pointer; }
-
-/* Layout */
 .page { min-height: 100vh; padding-bottom: 48px; }
 .header { background: white; border-bottom: 1px solid #e5e7eb; padding: 14px 16px; position: sticky; top: 0; z-index: 10; }
 .header-inner { max-width: 640px; margin: 0 auto; }
 .content { max-width: 640px; margin: 0 auto; padding: 20px 16px 0; }
-
-/* Month nav */
 .month-nav { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
 .nav-btn { width: 32px; height: 32px; border-radius: 50%; background: #f3f4f6; border: none; font-size: 20px; line-height: 1; display: flex; align-items: center; justify-content: center; }
 .nav-btn:hover { background: #e5e7eb; }
 .month-label { font-weight: 600; width: 120px; text-align: center; }
-
-/* Tabs */
 .tabs { display: flex; gap: 8px; }
 .tab-btn { padding: 6px 16px; border-radius: 999px; border: none; font-weight: 600; font-size: 13px; background: #f3f4f6; color: #4b5563; }
 .tab-btn:hover { background: #e5e7eb; }
 .tab-btn.active { background: #4f46e5; color: white; }
-
-/* Summary grid */
 .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
 .card { background: white; border-radius: 12px; padding: 12px; border: 1px solid #f3f4f6; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
 .card-label { font-size: 11px; color: #9ca3af; margin-bottom: 3px; }
 .card-val { font-weight: 700; font-size: 15px; }
 .card-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
 .card-delta { font-size: 11px; font-weight: 600; margin-top: 2px; }
-
-/* Sections */
 .section { background: white; border-radius: 12px; border: 1px solid #f3f4f6; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 14px; }
 .section-head { padding: 8px 16px; font-size: 13px; font-weight: 700; }
 .section-head.blue  { background: #eef2ff; color: #4338ca; }
 .section-head.red   { background: #fff1f2; color: #be123c; }
 .section-head.green { background: #ecfdf5; color: #065f46; }
-
-/* Category rows */
 .cat-row { padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f9fafb; user-select: none; }
 .cat-row:hover { background: #fafafa; }
 .arrow { font-size: 9px; color: #9ca3af; display: inline-block; transition: transform 0.15s; width: 10px; }
@@ -57,8 +45,6 @@ button { cursor: pointer; }
 .remove-btn { background: none; border: none; color: #d1d5db; font-size: 13px; padding: 0 2px; }
 .remove-btn:hover { color: #ef4444; }
 .section-footer { padding: 10px 16px; background: #f9fafb; display: flex; align-items: center; border-top: 1px solid #f3f4f6; font-weight: 700; }
-
-/* Expanded area */
 .expand-area { background: #f9fafb; border-top: 1px solid #f3f4f6; padding: 12px 16px; }
 .item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .recur-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #e5e7eb; background: white; font-size: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -72,15 +58,11 @@ button { cursor: pointer; }
 .add-item-btn:hover { color: #4338ca; }
 .expand-total { text-align: right; border-top: 1px solid #e5e7eb; margin-top: 8px; padding-top: 6px; font-size: 12px; color: #6b7280; font-weight: 600; }
 .recur-note { font-size: 11px; color: #d97706; margin-top: 6px; }
-
-/* Add category row */
 .add-row { display: flex; gap: 8px; margin-bottom: 14px; }
 .add-input { flex: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; outline: none; }
 .add-input:focus { border-color: #6366f1; }
 .add-btn { background: #4f46e5; color: white; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600; }
 .add-btn:hover { background: #4338ca; }
-
-/* Setup screen */
 .setup-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; background: #f9fafb; }
 .setup-box { background: white; border-radius: 16px; padding: 32px; max-width: 480px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
 .setup-box h1 { font-size: 20px; margin-bottom: 6px; }
@@ -94,76 +76,56 @@ button { cursor: pointer; }
 .error-msg { color: #ef4444; font-size: 12px; margin-bottom: 8px; }
 .change-url-btn { background: none; border: none; color: #9ca3af; font-size: 12px; display: block; margin: 0 auto 8px; }
 .change-url-btn:hover { color: #ef4444; }
-
-/* Chart bars */
 .chart-wrap { background: white; border-radius: 12px; border: 1px solid #f3f4f6; padding: 16px; margin-bottom: 14px; }
 .chart-title { font-weight: 700; margin-bottom: 4px; }
 .chart-sub { font-size: 11px; color: #9ca3af; margin-bottom: 14px; }
 .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
 .bar-label { width: 90px; color: #374151; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
-.bar-track { flex: 1; height: 18px; background: #f3f4f6; border-radius: 4px; overflow: hidden; position: relative; }
-.bar-fill { height: 100%; border-radius: 4px; position: absolute; top: 0; left: 0; transition: width 0.3s; }
+.bar-track { flex: 1; height: 32px; background: #f3f4f6; border-radius: 4px; overflow: hidden; position: relative; }
 .bar-val { width: 70px; text-align: right; color: #6b7280; font-size: 11px; }
 .legend { display: flex; gap: 16px; margin-bottom: 12px; font-size: 12px; }
 .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
-
-/* Trend line chart */
-.trend-line-wrap { position: relative; height: 160px; margin-top: 8px; }
-canvas.trend-canvas { width: 100%; height: 100%; }
-
-/* Sync status */
 .sync-status { font-size: 12px; }
 .sync-ok { color: #34d399; }
 .sync-saving { color: #fbbf24; }
 .sync-error { color: #f87171; }
-
-/* Colors */
 .green { color: #16a34a; }
 .red { color: #ef4444; }
 .muted { color: #9ca3af; }
-
-@media (max-width: 500px) {
-  .summary-grid { grid-template-columns: 1fr 1fr; }
-}
+@media (max-width: 500px) { .summary-grid { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
 <body>
-<div class="page">
-  <div id="app"></div>
-</div>
-
+<div class="page"><div id="app"></div></div>
 <script>
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 const DEFAULT_CATS = ["Housing","Groceries","Dining","Transport","Health","Leisure","Subscriptions","Travel","Other"];
 const INVEST_CAT = "Investing";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 let _uid = 0;
-const uid  = () => "i" + (++_uid);
-const ni   = () => ({ id: uid(), label: "", amount: "", recurring: false });
-const mk   = (y, m) => `${y}-${String(m).padStart(2,"0")}`;
-const pmk  = (y, m) => m === 0 ? mk(y-1, 11) : mk(y, m-1);
-const fmt  = n => n == null ? "—" : "€" + Number(n).toLocaleString("en-BE", {minimumFractionDigits:0, maximumFractionDigits:0});
-const pct  = (a, b) => (b == null || b === 0) ? null : ((a - b) / b * 100).toFixed(1);
+const uid = () => "i" + (++_uid);
+const ni  = () => ({ id: uid(), label: "", amount: "", recurring: false });
+const mk  = (y, m) => `${y}-${String(m).padStart(2,"0")}`;
+const pmk = (y, m) => m === 0 ? mk(y-1, 11) : mk(y, m-1);
+const fmt = n => n == null ? "—" : "€" + Number(n).toLocaleString("en-BE", {minimumFractionDigits:0, maximumFractionDigits:0});
+const pct = (a, b) => (b == null || b === 0) ? null : ((a - b) / b * 100).toFixed(1);
 
 function ensureIds(arr) {
   if (!Array.isArray(arr)) return [ni()];
   return arr.map(it => it.id ? it : { ...it, id: uid() });
 }
-
 function listTotal(items) {
   if (!items) return 0;
   if (Array.isArray(items)) return items.reduce((s, x) => s + (Number(x.amount) || 0), 0);
   return Number(items) || 0;
 }
-
 function entryIncome(entry) {
   if (!entry) return 0;
   if (entry.incomeItems && Array.isArray(entry.incomeItems))
     return entry.incomeItems.reduce((s, x) => s + (Number(x.amount) || 0), 0);
   return Number(entry.income) || 0;
 }
-
 function trail12(data, y, m, cat) {
   const vals = [];
   for (let i = 1; i <= 12; i++) {
@@ -176,7 +138,6 @@ function trail12(data, y, m, cat) {
   }
   return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
 }
-
 function trail12Inc(data, y, m) {
   const vals = [];
   for (let i = 1; i <= 12; i++) {
@@ -187,7 +148,6 @@ function trail12Inc(data, y, m) {
   }
   return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
 }
-
 function seedMonth(data, y, m, cats) {
   const prev = data[pmk(y, m)];
   if (!prev) return { expenses: {}, investing: [] };
@@ -201,7 +161,6 @@ function seedMonth(data, y, m, cats) {
     .filter(i => i.recurring).map(i => ({ ...i, id: uid() }));
   return { expenses, investing };
 }
-
 function seedIncome(data, y, m) {
   const prev = data[pmk(y, m)];
   if (!prev || !prev.incomeItems) return null;
@@ -209,14 +168,13 @@ function seedIncome(data, y, m) {
   return r.length ? r.map(i => ({ ...i, id: uid() })) : null;
 }
 
-// ── Google Sheets storage ─────────────────────────────────────────────────────
+// ── Storage ───────────────────────────────────────────────────────────────────
 function makeStorage(url) {
   function get(key) {
     return fetch(url + "?action=get&key=" + encodeURIComponent(key))
       .then(r => r.json()).then(j => j.ok ? j.value : null);
   }
   function set(key, value) {
-    // Use GET-only to avoid CORS preflight issues with Apps Script
     return fetch(url + "?action=set&key=" + encodeURIComponent(key) + "&value=" + encodeURIComponent(value))
       .then(r => r.json());
   }
@@ -227,11 +185,11 @@ function makeStorage(url) {
 const state = {
   scriptUrl: localStorage.getItem("budget-url") || "",
   urlInput: "",
-  syncStatus: "idle", // idle | saving | ok | error
+  syncStatus: "idle",
   syncError: "",
   data: {},
-  year: new Date().getFullYear(),
-  month: new Date().getMonth(),
+  year:  Number(localStorage.getItem("budget-year"))  || new Date().getFullYear(),
+  month: Number(localStorage.getItem("budget-month")) >= 0 ? Number(localStorage.getItem("budget-month")) : new Date().getMonth(),
   cats: [...DEFAULT_CATS],
   tab: "entry",
   newCat: "",
@@ -243,23 +201,22 @@ const state = {
   storage: null,
 };
 
+// ── Render ────────────────────────────────────────────────────────────────────
 function render() {
   document.getElementById("app").innerHTML = "";
   document.getElementById("app").appendChild(
-    state.scriptUrl === "" ? renderSetup() :
-    !state.loaded         ? renderLoading() :
-                             renderApp()
+    !state.scriptUrl ? renderSetup() :
+    !state.loaded    ? renderLoading() :
+                       renderApp()
   );
 }
 
-// ── Setup screen ──────────────────────────────────────────────────────────────
+// ── Setup ─────────────────────────────────────────────────────────────────────
 function renderSetup() {
   const wrap = el("div", { className: "setup-wrap" });
   const box  = el("div", { className: "setup-box" });
-
   box.appendChild(el("h1", {}, "💰 Budget Tracker"));
   box.appendChild(el("p", {}, "Connect to Google Sheets to sync data across all devices."));
-
   const ol = el("ol");
   [
     ["Open ", a("https://sheets.google.com", "Google Sheets"), " and create a new spreadsheet."],
@@ -273,21 +230,14 @@ function renderSetup() {
     ol.appendChild(li);
   });
   box.appendChild(ol);
-
-  if (state.syncError) {
-    const err = el("p", { className: "error-msg" }, "Error: " + state.syncError);
-    box.appendChild(err);
-  }
-
+  if (state.syncError) box.appendChild(el("p", { className: "error-msg" }, "Error: " + state.syncError));
   const inp = el("input", { className: "url-input", type: "text", placeholder: "https://script.google.com/macros/s/...", value: state.urlInput });
   inp.addEventListener("input", e => { state.urlInput = e.target.value; });
   inp.addEventListener("keydown", e => { if (e.key === "Enter") connect(); });
   box.appendChild(inp);
-
   const btn = el("button", { className: "connect-btn" }, "Connect");
   btn.addEventListener("click", connect);
   box.appendChild(btn);
-
   wrap.appendChild(box);
   return wrap;
 }
@@ -348,15 +298,18 @@ function persist() {
 }
 
 function updateSyncBadge() {
-  const el = document.getElementById("sync-badge");
-  if (!el) return;
-  const map = { saving: ["☁️ Saving…","sync-saving"], ok: ["☁️ Synced","sync-ok"], error: ["⚠️ Error","sync-error"], idle: ["",""] };
+  const badge = document.getElementById("sync-badge");
+  if (!badge) return;
+  const map = { saving: ["⏳ Saving…","sync-saving"], ok: ["☁️ Synced","sync-ok"], error: ["⚠️ Error","sync-error"], idle: ["",""] };
   const [txt, cls] = map[state.syncStatus] || ["",""];
-  el.textContent = txt;
-  el.className = "sync-status " + cls;
+  badge.textContent = txt;
+  badge.className = "sync-status " + cls;
 }
 
 // ── Entry helpers ─────────────────────────────────────────────────────────────
+// Always reads from state.data. If the month doesn't exist yet, seeds it and
+// writes it into state.data immediately (but does NOT persist to Sheets yet —
+// that only happens on actual user edits to avoid spamming empty months).
 function getEntry() {
   const key = mk(state.year, state.month);
   if (!state.data[key]) {
@@ -369,59 +322,40 @@ function getEntry() {
   return state.data[key];
 }
 
+// Saves current entry to state.data AND persists to Sheets.
+// Always call this after any user edit.
 function saveEntry(entry) {
   const key = mk(state.year, state.month);
   state.data = { ...state.data, [key]: entry };
   persist();
 }
 
-function ensureEntry() {
-  const key = mk(state.year, state.month);
-  if (!state.data[key]) {
-    getEntry(); // this now writes to state.data
-    persist();  // immediately save to Google Sheets
-  }
-}
-
-function getIncItems(entry) { return entry.incomeItems && entry.incomeItems.length ? entry.incomeItems : [ni()]; }
-function getInvItems(entry) { return Array.isArray(entry.investing) && entry.investing.length ? entry.investing : [ni()]; }
-function getCatItems(entry, cat) {
-  const v = entry.expenses && entry.expenses[cat];
+function getIncItems() { const e = getEntry(); return e.incomeItems && e.incomeItems.length ? e.incomeItems : [ni()]; }
+function getInvItems() { const e = getEntry(); return Array.isArray(e.investing) && e.investing.length ? e.investing : [ni()]; }
+function getCatItems(cat) {
+  const e = getEntry();
+  const v = e.expenses && e.expenses[cat];
   if (!v) return [ni()];
   if (Array.isArray(v)) return v.length ? v : [ni()];
   return [{ ...ni(), amount: v }];
 }
 
-function updateListItem(list, id, field, val) {
-  return list.map(it => it.id === id ? { ...it, [field]: val } : it);
-}
-function toggleListItem(list, id) {
-  return list.map(it => it.id === id ? { ...it, recurring: !it.recurring } : it);
-}
-function removeListItem(list, id) {
-  const r = list.filter(it => it.id !== id);
-  return r.length ? r : [ni()];
-}
-
-// ── Main app render ───────────────────────────────────────────────────────────
+// ── Main app ──────────────────────────────────────────────────────────────────
 function renderApp() {
   const root = el("div");
 
   // Header
   const hdr = el("div", { className: "header" });
   const hdrInner = el("div", { className: "header-inner" });
-
   const titleRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center;" });
   titleRow.appendChild(el("span", { style: "font-size:18px;font-weight:700;" }, "💰 Budget Tracker"));
-  const badge = el("span", { id: "sync-badge", className: "sync-status sync-ok" }, "☁️ Synced");
-  titleRow.appendChild(badge);
+  titleRow.appendChild(el("span", { id: "sync-badge", className: "sync-status sync-ok" }, "☁️ Synced"));
   hdrInner.appendChild(titleRow);
 
   // Month nav
   const nav = el("div", { className: "month-nav" });
   const prevBtn = el("button", { className: "nav-btn" }, "‹");
   prevBtn.addEventListener("click", () => {
-    ensureEntry();
     if (state.month === 0) { state.month = 11; state.year--; } else state.month--;
     localStorage.setItem("budget-month", state.month);
     localStorage.setItem("budget-year", state.year);
@@ -431,7 +365,6 @@ function renderApp() {
   nav.appendChild(el("span", { className: "month-label" }, MONTHS[state.month] + " " + state.year));
   const nextBtn = el("button", { className: "nav-btn" }, "›");
   nextBtn.addEventListener("click", () => {
-    ensureEntry();
     if (state.month === 11) { state.month = 0; state.year++; } else state.month++;
     localStorage.setItem("budget-month", state.month);
     localStorage.setItem("budget-year", state.year);
@@ -443,7 +376,8 @@ function renderApp() {
   // Tabs
   const tabs = el("div", { className: "tabs" });
   ["entry","chart","trends"].forEach(t => {
-    const btn = el("button", { className: "tab-btn" + (state.tab === t ? " active" : "") }, t === "entry" ? "Entry" : t === "chart" ? "vs. Average" : "Trends");
+    const btn = el("button", { className: "tab-btn" + (state.tab === t ? " active" : "") },
+      t === "entry" ? "Entry" : t === "chart" ? "vs. Average" : "Trends");
     btn.addEventListener("click", () => { state.tab = t; render(); });
     tabs.appendChild(btn);
   });
@@ -453,9 +387,9 @@ function renderApp() {
 
   // Content
   const content = el("div", { className: "content" });
-
-  // Summary
   const entry = getEntry();
+
+  // Summary cards
   const totalInc = entryIncome(entry);
   const totalExp = state.cats.reduce((s, c) => s + listTotal(entry.expenses && entry.expenses[c]), 0);
   const totalInv = listTotal(entry.investing);
@@ -478,10 +412,10 @@ function renderApp() {
 
   const sumGrid = el("div", { className: "summary-grid" });
   [
-    { label: "Income",    val: fmt(totalInc || null), sub: t12Inc ? "avg " + fmt(t12Inc) : "no history", delta: t12Inc ? pct(totalInc, t12Inc) : null, inv: false, exp: false },
-    { label: "Expenses",  val: fmt(totalExp || null), sub: null, delta: null, inv: false, exp: true },
-    { label: "Investing", val: fmt(totalInv || null), sub: t12Inv ? "avg " + fmt(t12Inv) : null, delta: invDelta, inv: true, exp: false },
-    { label: "Net Cash",  val: fmt(netCash  || null), sub: savRate ? savRate + "% rate" : null, delta: t12Sav != null ? pct(netCash, t12Sav) : null, inv: false, exp: false },
+    { label:"Income",    val:fmt(totalInc||null), sub:t12Inc?"avg "+fmt(t12Inc):"no history", delta:t12Inc?pct(totalInc,t12Inc):null, inv:false, exp:false },
+    { label:"Expenses",  val:fmt(totalExp||null), sub:null, delta:null, inv:false, exp:true },
+    { label:"Investing", val:fmt(totalInv||null), sub:t12Inv?"avg "+fmt(t12Inv):null, delta:invDelta, inv:true, exp:false },
+    { label:"Net Cash",  val:fmt(netCash||null),  sub:savRate?savRate+"% rate":null, delta:t12Sav!=null?pct(netCash,t12Sav):null, inv:false, exp:false },
   ].forEach(({ label, val, sub, delta, inv, exp }) => {
     const card = el("div", { className: "card" });
     card.appendChild(el("div", { className: "card-label" }, label));
@@ -489,14 +423,14 @@ function renderApp() {
     if (sub) card.appendChild(el("div", { className: "card-sub" }, sub));
     if (delta != null) {
       const up = Number(delta) > 0;
-      const color = inv ? (up ? "green" : "red") : exp ? (up ? "red" : "green") : (up ? "green" : "red");
-      card.appendChild(el("div", { className: "card-delta " + color }, (up ? "+" : "") + delta + "% vs avg"));
+      const color = inv ? (up?"green":"red") : exp ? (up?"red":"green") : (up?"green":"red");
+      card.appendChild(el("div", { className: "card-delta " + color }, (up?"+":"") + delta + "% vs avg"));
     }
     sumGrid.appendChild(card);
   });
   content.appendChild(sumGrid);
 
-  if (state.tab === "entry")  content.appendChild(renderEntry(entry, totalExp));
+  if (state.tab === "entry")  content.appendChild(renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta));
   if (state.tab === "chart")  content.appendChild(renderChart(entry));
   if (state.tab === "trends") content.appendChild(renderTrends());
 
@@ -505,50 +439,54 @@ function renderApp() {
 }
 
 // ── Entry tab ─────────────────────────────────────────────────────────────────
-function renderEntry(entry, totalExp) {
+function renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta) {
   const wrap = el("div");
-
-  // Income section
-  const incItems = getIncItems(entry);
-  const incRC = incItems.filter(i => i.recurring).length;
+  const incItems = getIncItems();
+  const incRC    = incItems.filter(i => i.recurring).length;
   const totalInc = entryIncome(entry);
-  const t12Inc = trail12Inc(state.data, state.year, state.month);
-  wrap.appendChild(renderSection("Income", "blue",
-    renderCatRow("__income__", "Total income", totalInc, t12Inc, incRC, state.incomeOpen, false,
-      () => { state.incomeOpen = !state.incomeOpen; render(); }, null),
-    state.incomeOpen ? renderExpand(incItems,
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, incomeItems: updateListItem(getIncItems(e), id, "label", v) }); rerenderExpand(); },
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, incomeItems: updateListItem(getIncItems(e), id, "amount", v) }); rerenderExpand(); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, incomeItems: toggleListItem(getIncItems(e), id) }); render(); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, incomeItems: removeListItem(getIncItems(e), id) }); render(); },
-      ()      => { const e = getEntry(); saveEntry({ ...e, incomeItems: getIncItems(e).concat([ni()]) }); render(); },
-      "Add income source", incRC
-    ) : null
-  ));
+  const invItems = getInvItems();
+  const invRC    = invItems.filter(i => i.recurring).length;
+  const totalInv = listTotal(entry.investing);
 
-  // Expenses section
-  const expSection = el("div", { className: "section" });
-  expSection.appendChild(el("div", { className: "section-head red" }, "Expenses"));
+  // ── Income ──
+  const incSec = el("div", { className: "section" });
+  incSec.appendChild(el("div", { className: "section-head blue" }, "Income"));
+  incSec.appendChild(renderCatRow("Total income", totalInc, t12Inc, incRC, state.incomeOpen, false,
+    () => { state.incomeOpen = !state.incomeOpen; render(); }, null));
+  if (state.incomeOpen) {
+    incSec.appendChild(renderExpand(incItems,
+      (id, v) => { const e = getEntry(); saveEntry({ ...e, incomeItems: updateItem(getIncItems(), id, "label", v) }); },
+      (id, v) => { const e = getEntry(); saveEntry({ ...e, incomeItems: updateItem(getIncItems(), id, "amount", v) }); },
+      (id)    => { const e = getEntry(); saveEntry({ ...e, incomeItems: toggleItem(getIncItems(), id) }); render(); },
+      (id)    => { const e = getEntry(); saveEntry({ ...e, incomeItems: removeItem(getIncItems(), id) }); render(); },
+      ()      => { const e = getEntry(); saveEntry({ ...e, incomeItems: [...getIncItems(), ni()] }); render(); },
+      "Add income source", incRC
+    ));
+  }
+  wrap.appendChild(incSec);
+
+  // ── Expenses ──
+  const expSec = el("div", { className: "section" });
+  expSec.appendChild(el("div", { className: "section-head red" }, "Expenses"));
   state.cats.forEach(cat => {
-    const items = getCatItems(entry, cat);
+    const items = getCatItems(cat);
     const total = listTotal(entry.expenses && entry.expenses[cat]);
     const avg   = trail12(state.data, state.year, state.month, cat);
     const d     = avg != null && total > 0 ? pct(total, avg) : null;
     const rc    = items.filter(i => i.recurring).length;
-    const isOpen = state.expanded[cat];
-
-    expSection.appendChild(renderCatRow(cat, cat, total, avg, rc, isOpen, true,
+    const isOpen = !!state.expanded[cat];
+    expSec.appendChild(renderCatRow(cat, total, avg, rc, isOpen, true,
       () => { state.expanded = { ...state.expanded, [cat]: !isOpen }; render(); },
       () => { state.cats = state.cats.filter(x => x !== cat); persist(); render(); },
       d
     ));
     if (isOpen) {
-      expSection.appendChild(renderExpand(items,
-        (id, v) => { const e = getEntry(); const its = updateListItem(getCatItems(e,cat), id, "label", v); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); rerenderExpand(); },
-        (id, v) => { const e = getEntry(); const its = updateListItem(getCatItems(e,cat), id, "amount", v); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); rerenderExpand(); },
-        (id)    => { const e = getEntry(); const its = toggleListItem(getCatItems(e,cat), id); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); render(); },
-        (id)    => { const e = getEntry(); const its = removeListItem(getCatItems(e,cat), id); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); render(); },
-        ()      => { const e = getEntry(); const its = getCatItems(e,cat).concat([ni()]); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); render(); },
+      expSec.appendChild(renderExpand(items,
+        (id, v) => { const e = getEntry(); const its = updateItem(getCatItems(cat), id, "label", v); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); },
+        (id, v) => { const e = getEntry(); const its = updateItem(getCatItems(cat), id, "amount", v); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); },
+        (id)    => { const e = getEntry(); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: toggleItem(getCatItems(cat), id) } }); render(); },
+        (id)    => { const e = getEntry(); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: removeItem(getCatItems(cat), id) } }); render(); },
+        ()      => { const e = getEntry(); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: [...getCatItems(cat), ni()] } }); render(); },
         "Add item", rc
       ));
     }
@@ -556,42 +494,45 @@ function renderEntry(entry, totalExp) {
   const footer = el("div", { className: "section-footer" });
   footer.appendChild(el("span", { style: "flex:1;" }, "Total"));
   footer.appendChild(el("span", {}, fmt(totalExp)));
-  expSection.appendChild(footer);
-  wrap.appendChild(expSection);
+  expSec.appendChild(footer);
+  wrap.appendChild(expSec);
 
-  // Investing section
-  const invItems = getInvItems(entry);
-  const invRC = invItems.filter(i => i.recurring).length;
-  const totalInv = listTotal(entry.investing);
-  const t12Inv = trail12(state.data, state.year, state.month, INVEST_CAT);
-  const invDelta = t12Inv != null && totalInv > 0 ? pct(totalInv, t12Inv) : null;
-  wrap.appendChild(renderSection("Investing", "green",
-    renderCatRow("__invest__", "Total invested", totalInv, t12Inv, invRC, state.investOpen, false,
-      () => { state.investOpen = !state.investOpen; render(); }, null, invDelta, true),
-    state.investOpen ? renderExpand(invItems,
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, investing: updateListItem(getInvItems(e), id, "label", v) }); rerenderExpand(); },
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, investing: updateListItem(getInvItems(e), id, "amount", v) }); rerenderExpand(); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, investing: toggleListItem(getInvItems(e), id) }); render(); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, investing: removeListItem(getInvItems(e), id) }); render(); },
-      ()      => { const e = getEntry(); saveEntry({ ...e, investing: getInvItems(e).concat([ni()]) }); render(); },
+  // ── Investing ──
+  const invSec = el("div", { className: "section" });
+  invSec.appendChild(el("div", { className: "section-head green" }, "Investing"));
+  invSec.appendChild(renderCatRow("Total invested", totalInv, t12Inv, invRC, state.investOpen, false,
+    () => { state.investOpen = !state.investOpen; render(); }, null, invDelta, true));
+  if (state.investOpen) {
+    invSec.appendChild(renderExpand(invItems,
+      (id, v) => { const e = getEntry(); saveEntry({ ...e, investing: updateItem(getInvItems(), id, "label", v) }); },
+      (id, v) => { const e = getEntry(); saveEntry({ ...e, investing: updateItem(getInvItems(), id, "amount", v) }); },
+      (id)    => { const e = getEntry(); saveEntry({ ...e, investing: toggleItem(getInvItems(), id) }); render(); },
+      (id)    => { const e = getEntry(); saveEntry({ ...e, investing: removeItem(getInvItems(), id) }); render(); },
+      ()      => { const e = getEntry(); saveEntry({ ...e, investing: [...getInvItems(), ni()] }); render(); },
       "Add investment", invRC
-    ) : null
-  ));
+    ));
+  }
+  wrap.appendChild(invSec);
 
-  // Add category
+  // ── Add category ──
   const addRow = el("div", { className: "add-row" });
   const addInp = el("input", { className: "add-input", type: "text", placeholder: "Add expense category…", value: state.newCat });
   addInp.addEventListener("input", e => { state.newCat = e.target.value; });
   addInp.addEventListener("keydown", e => { if (e.key === "Enter") addCat(); });
   const addBtn = el("button", { className: "add-btn" }, "Add");
   addBtn.addEventListener("click", addCat);
-  addRow.appendChild(addInp); addRow.appendChild(addBtn);
+  addRow.appendChild(addInp);
+  addRow.appendChild(addBtn);
   wrap.appendChild(addRow);
 
   const changeBtn = el("button", { className: "change-url-btn" }, "⚙ Change Google Sheets URL");
-  changeBtn.addEventListener("click", () => { localStorage.removeItem("budget-url"); state.scriptUrl = ""; state.loaded = false; render(); });
+  changeBtn.addEventListener("click", () => {
+    localStorage.removeItem("budget-url");
+    state.scriptUrl = "";
+    state.loaded = false;
+    render();
+  });
   wrap.appendChild(changeBtn);
-
   return wrap;
 }
 
@@ -604,33 +545,25 @@ function addCat() {
   render();
 }
 
-function renderSection(title, color, ...children) {
-  const sec = el("div", { className: "section" });
-  sec.appendChild(el("div", { className: "section-head " + color }, title));
-  children.forEach(c => { if (c) sec.appendChild(c); });
-  return sec;
-}
+// ── Item list helpers ─────────────────────────────────────────────────────────
+function updateItem(list, id, field, val) { return list.map(it => it.id === id ? { ...it, [field]: val } : it); }
+function toggleItem(list, id)             { return list.map(it => it.id === id ? { ...it, recurring: !it.recurring } : it); }
+function removeItem(list, id)             { const r = list.filter(it => it.id !== id); return r.length ? r : [ni()]; }
 
-function renderCatRow(key, name, total, avg, rc, isOpen, showRemove, onToggle, onRemove, delta, isInvesting) {
+// ── Row / expand renderers ────────────────────────────────────────────────────
+function renderCatRow(name, total, avg, rc, isOpen, showRemove, onToggle, onRemove, delta, isInvesting) {
   const row = el("div", { className: "cat-row" });
   row.addEventListener("click", onToggle);
-
   row.appendChild(el("span", { className: "arrow" + (isOpen ? " open" : "") }, "▶"));
   row.appendChild(el("span", { className: "cat-name" }, name));
-
   if (rc > 0) row.appendChild(el("span", { className: "badge" }, "🔁 " + rc));
-
   if (delta != null) {
     const up = Number(delta) > 0;
-    const color = isInvesting ? (up ? "green" : "red") : (up ? "red" : "green");
-    row.appendChild(el("span", { className: color, style: "font-size:11px;font-weight:600;" }, (up ? "+" : "") + delta + "%"));
+    const color = isInvesting ? (up?"green":"red") : (up?"red":"green");
+    row.appendChild(el("span", { className: color, style: "font-size:11px;font-weight:600;" }, (up?"+":"") + delta + "%"));
   }
-
   if (avg != null) row.appendChild(el("span", { className: "cat-avg" }, fmt(avg)));
-
-  const tv = el("span", { className: "cat-total" + (total > 0 ? "" : " empty") }, total > 0 ? fmt(total) : "€0");
-  row.appendChild(tv);
-
+  row.appendChild(el("span", { className: "cat-total" + (total > 0 ? "" : " empty") }, total > 0 ? fmt(total) : "€0"));
   if (showRemove && onRemove) {
     const rb = el("button", { className: "remove-btn" }, "✕");
     rb.addEventListener("click", e => { e.stopPropagation(); onRemove(); });
@@ -641,56 +574,30 @@ function renderCatRow(key, name, total, avg, rc, isOpen, showRemove, onToggle, o
 
 function renderExpand(items, onLabel, onAmount, onToggleRec, onRemove, onAdd, addLabel, rc) {
   const area = el("div", { className: "expand-area" });
-
   items.forEach(item => {
     const row = el("div", { className: "item-row" });
-
     const recBtn = el("button", { className: "recur-btn" + (item.recurring ? " on" : ""), title: item.recurring ? "Recurring — click to disable" : "Repeat every month" }, "🔁");
     recBtn.addEventListener("click", () => onToggleRec(item.id));
-
     const labelInp = el("input", { className: "item-label", type: "text", value: item.label, placeholder: "Description" });
     labelInp.addEventListener("input", e => onLabel(item.id, e.target.value));
-
     const eurSpan = el("span", { className: "eur" }, "€");
-
     const amtInp = el("input", { className: "item-amount", type: "number", min: "0", value: item.amount, placeholder: "0" });
     amtInp.addEventListener("input", e => onAmount(item.id, e.target.value));
-
     const rmBtn = el("button", { className: "remove-btn", style: "font-size:15px;" }, "✕");
     rmBtn.addEventListener("click", () => onRemove(item.id));
-
     row.appendChild(recBtn); row.appendChild(labelInp); row.appendChild(eurSpan); row.appendChild(amtInp); row.appendChild(rmBtn);
     area.appendChild(row);
   });
-
   const addBtn = el("button", { className: "add-item-btn" }, "＋ " + addLabel);
   addBtn.addEventListener("click", onAdd);
   area.appendChild(addBtn);
-
   const filled = items.filter(i => Number(i.amount) > 0).length;
   if (filled > 1) {
     const tot = items.reduce((s, x) => s + (Number(x.amount) || 0), 0);
     area.appendChild(el("div", { className: "expand-total" }, "Total: " + fmt(tot)));
   }
   if (rc > 0) area.appendChild(el("div", { className: "recur-note" }, "🔁 " + rc + " item" + (rc > 1 ? "s" : "") + " will auto-repeat next month."));
-
   return area;
-}
-
-// Lightweight re-render that only updates totals/badges without losing focus
-function rerenderExpand() {
-  // Just persist — no full re-render, inputs keep focus
-  const entry = getEntry();
-  // Update summary cards
-  const totalInc = entryIncome(entry);
-  const totalExp = state.cats.reduce((s, c) => s + listTotal(entry.expenses && entry.expenses[c]), 0);
-  const totalInv = listTotal(entry.investing);
-  const netCash  = totalInc - totalExp - totalInv;
-  document.querySelectorAll(".card").forEach((card, i) => {
-    const vals = [totalInc, totalExp, totalInv, netCash];
-    const vEl = card.querySelector(".card-val");
-    if (vEl) vEl.textContent = fmt(vals[i] || null);
-  });
 }
 
 // ── Chart tab ─────────────────────────────────────────────────────────────────
@@ -698,17 +605,14 @@ function renderChart(entry) {
   const wrap = el("div", { className: "chart-wrap" });
   wrap.appendChild(el("div", { className: "chart-title" }, "Spending vs. 12-month average"));
   wrap.appendChild(el("div", { className: "chart-sub" }, MONTHS[state.month] + " " + state.year));
-
   const pairs = state.cats.map(cat => ({
     cat, cur: listTotal(entry.expenses && entry.expenses[cat]),
     avg: trail12(state.data, state.year, state.month, cat)
   })).filter(d => d.cur > 0 || d.avg != null);
-
   if (pairs.length === 0) {
     wrap.appendChild(el("div", { style: "text-align:center;color:#9ca3af;padding:40px 0;font-size:13px;" }, "Enter expenses in the Entry tab to see the chart."));
     return wrap;
   }
-
   const leg = el("div", { className: "legend" });
   [["#6366f1","This month"],["#c7d2fe","12m avg"]].forEach(([color, label]) => {
     const item = el("span");
@@ -717,26 +621,17 @@ function renderChart(entry) {
     leg.appendChild(item);
   });
   wrap.appendChild(leg);
-
   const maxVal = Math.max(...pairs.map(p => Math.max(p.cur, p.avg || 0)), 1);
   pairs.forEach(({ cat, cur, avg }) => {
     const row = el("div", { className: "bar-row" });
     row.appendChild(el("span", { className: "bar-label", title: cat }, cat));
     const track = el("div", { className: "bar-track", style: "position:relative;height:32px;" });
-
-    if (avg != null) {
-      const avgBar = el("div", { className: "bar-fill", style: `background:#c7d2fe;width:${(avg/maxVal*100).toFixed(1)}%;height:32px;` });
-      track.appendChild(avgBar);
-    }
-    if (cur > 0) {
-      const curBar = el("div", { className: "bar-fill", style: `background:#6366f1;width:${(cur/maxVal*100).toFixed(1)}%;height:18px;top:7px;` });
-      track.appendChild(curBar);
-    }
+    if (avg != null) track.appendChild(el("div", { className: "bar-fill", style: `background:#c7d2fe;width:${(avg/maxVal*100).toFixed(1)}%;height:32px;position:absolute;top:0;left:0;border-radius:4px;` }));
+    if (cur > 0)     track.appendChild(el("div", { className: "bar-fill", style: `background:#6366f1;width:${(cur/maxVal*100).toFixed(1)}%;height:18px;position:absolute;top:7px;left:0;border-radius:4px;` }));
     row.appendChild(track);
     row.appendChild(el("span", { className: "bar-val" }, fmt(cur)));
     wrap.appendChild(row);
   });
-
   return wrap;
 }
 
@@ -744,7 +639,7 @@ function renderChart(entry) {
 function renderTrends() {
   const wrap = el("div");
 
-  // Category selector
+  // Sparkline
   const topWrap = el("div", { className: "chart-wrap" });
   const titleRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;" });
   titleRow.appendChild(el("span", { className: "chart-title" }, "Monthly trend (13 months)"));
@@ -758,7 +653,6 @@ function renderTrends() {
   titleRow.appendChild(sel);
   topWrap.appendChild(titleRow);
 
-  // Build trend data
   const pts = [];
   for (let i = 12; i >= 0; i--) {
     let pm = state.month - i, py = state.year;
@@ -774,45 +668,36 @@ function renderTrends() {
     pts.push({ label: MONTHS[pm], val });
   }
 
-  // Simple SVG sparkline
   const maxV = Math.max(...pts.map(p => p.val), 1);
   const W = 600, H = 140, PAD = 30;
-  const xs = pts.map((_, i) => PAD + i * (W - PAD * 2) / (pts.length - 1));
-  const ys = pts.map(p => H - PAD - (p.val / maxV) * (H - PAD * 2));
-  const pathD = xs.map((x, i) => (i === 0 ? "M" : "L") + x.toFixed(1) + "," + ys[i].toFixed(1)).join(" ");
+  const xs = pts.map((_, i) => PAD + i * (W - PAD*2) / (pts.length - 1));
+  const ys = pts.map(p => H - PAD - (p.val / maxV) * (H - PAD*2));
+  const pathD = xs.map((x, i) => (i===0?"M":"L") + x.toFixed(1) + "," + ys[i].toFixed(1)).join(" ");
   const fillD = `M${xs[0].toFixed(1)},${H-PAD} ` + xs.map((x,i) => `L${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ") + ` L${xs[xs.length-1].toFixed(1)},${H-PAD} Z`;
-
   const color = state.trendCat === INVEST_CAT ? "#10b981" : "#6366f1";
   const fillColor = state.trendCat === INVEST_CAT ? "#d1fae5" : "#e0e7ff";
-
   let svgHtml = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:150px;">`;
-  // Grid lines
   for (let i = 0; i <= 4; i++) {
-    const y = PAD + (H - PAD*2) * i / 4;
-    const val = maxV * (1 - i/4);
+    const y = PAD + (H-PAD*2)*i/4;
+    const v = maxV*(1-i/4);
     svgHtml += `<line x1="${PAD}" y1="${y.toFixed(1)}" x2="${W-PAD}" y2="${y.toFixed(1)}" stroke="#f3f4f6" stroke-width="1"/>`;
-    svgHtml += `<text x="${PAD-4}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#9ca3af">${val>=1000?(val/1000).toFixed(0)+"k":Math.round(val)}</text>`;
+    svgHtml += `<text x="${PAD-4}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#9ca3af">${v>=1000?(v/1000).toFixed(0)+"k":Math.round(v)}</text>`;
   }
-  // Area fill
   svgHtml += `<path d="${fillD}" fill="${fillColor}" opacity="0.6"/>`;
-  // Line
   svgHtml += `<path d="${pathD}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`;
-  // Dots + labels
   xs.forEach((x, i) => {
     svgHtml += `<circle cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="3" fill="${color}"/>`;
     svgHtml += `<text x="${x.toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="#9ca3af">${pts[i].label}</text>`;
   });
   svgHtml += `</svg>`;
-
   const svgWrap = el("div");
   svgWrap.innerHTML = svgHtml;
   topWrap.appendChild(svgWrap);
   wrap.appendChild(topWrap);
 
-  // Overview stacked bar chart (SVG)
+  // Overview bar chart
   const ovWrap = el("div", { className: "chart-wrap" });
   ovWrap.appendChild(el("div", { className: "chart-title", style: "margin-bottom:12px;" }, "Overview (13 months)"));
-
   const ovPts = [];
   for (let i = 12; i >= 0; i--) {
     let pm = state.month - i, py = state.year;
@@ -831,30 +716,25 @@ function renderTrends() {
   const groupW = chartW / ovPts.length;
   const barGap = 1;
   const groupPad = groupW * 0.15;
-  const barW = Math.max(1, (groupW - groupPad * 2 - barGap * 3) / 4);
+  const barW = Math.max(1, (groupW - groupPad*2 - barGap*3) / 4);
 
   let ovSvg = `<svg viewBox="0 0 ${bW} ${bH}" style="width:100%;height:200px;">`;
   for (let g = 0; g <= 4; g++) {
-    const y = bPadT + chartH * g / 4;
-    const val = ovMax * (1 - g/4);
+    const y = bPadT + chartH*g/4;
+    const v = ovMax*(1-g/4);
     ovSvg += `<line x1="${bPadL}" y1="${y.toFixed(1)}" x2="${bW-bPadR}" y2="${y.toFixed(1)}" stroke="#f3f4f6" stroke-width="1"/>`;
-    ovSvg += `<text x="${bPadL-4}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="8" fill="#9ca3af">${val>=1000?(val/1000).toFixed(0)+"k":Math.round(val)}</text>`;
+    ovSvg += `<text x="${bPadL-4}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="8" fill="#9ca3af">${v>=1000?(v/1000).toFixed(0)+"k":Math.round(v)}</text>`;
   }
   ovPts.forEach((p, i) => {
-    const gx = bPadL + i * groupW + groupPad;
-    const bars = [
-      { val: p.inc, color: "#6366f1" },
-      { val: p.exp, color: "#f87171" },
-      { val: p.inv, color: "#10b981" },
-      { val: Math.max(0, p.sav), color: "#f97316" },
-    ];
-    bars.forEach((bar, bi) => {
-      const bx = gx + bi * (barW + barGap);
-      const bh = Math.max(0, (bar.val / ovMax) * chartH);
-      const by = bPadT + chartH - bh;
-      ovSvg += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" fill="${bar.color}" rx="1"/>`;
-    });
-    const cx = gx + (barW * 4 + barGap * 3) / 2;
+    const gx = bPadL + i*groupW + groupPad;
+    [{ val:p.inc, color:"#6366f1" },{ val:p.exp, color:"#f87171" },{ val:p.inv, color:"#10b981" },{ val:Math.max(0,p.sav), color:"#f97316" }]
+      .forEach((bar, bi) => {
+        const bx = gx + bi*(barW+barGap);
+        const bh = Math.max(0, (bar.val/ovMax)*chartH);
+        const by = bPadT + chartH - bh;
+        ovSvg += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" fill="${bar.color}" rx="1"/>`;
+      });
+    const cx = gx + (barW*4 + barGap*3)/2;
     ovSvg += `<text x="${cx.toFixed(1)}" y="${bH-4}" text-anchor="middle" font-size="8" fill="#9ca3af">${p.label}</text>`;
   });
   ovSvg += `</svg>`;
@@ -862,16 +742,14 @@ function renderTrends() {
   const ovLeg = el("div", { className: "legend" });
   [["#6366f1","Income"],["#f87171","Expenses"],["#10b981","Investing"],["#f97316","Net Cash"]].forEach(([color, label]) => {
     const item = el("span");
-    item.appendChild(el("span", { className: "legend-dot", style: "background:" + color + ";" }));
+    item.appendChild(el("span", { className: "legend-dot", style: "background:"+color+";" }));
     item.appendChild(document.createTextNode(label));
     ovLeg.appendChild(item);
   });
   ovWrap.appendChild(ovLeg);
-  const ovWrapInner = el("div");
-  ovWrapInner.innerHTML = ovSvg;
-  ovWrap.appendChild(ovWrapInner);
+  const ovInner = el("div"); ovInner.innerHTML = ovSvg;
+  ovWrap.appendChild(ovInner);
   wrap.appendChild(ovWrap);
-
   return wrap;
 }
 
@@ -885,8 +763,7 @@ function el(tag, attrs, ...children) {
   });
   children.forEach(c => {
     if (c == null) return;
-    if (typeof c === "string") node.appendChild(document.createTextNode(c));
-    else node.appendChild(c);
+    node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
   });
   return node;
 }
@@ -894,11 +771,7 @@ function a(href, text) { return el("a", { href, target: "_blank" }, text); }
 function b(text) { return el("strong", {}, text); }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-if (state.scriptUrl) {
-  loadData();
-} else {
-  render();
-}
+if (state.scriptUrl) loadData(); else render();
 </script>
 </body>
 </html>
