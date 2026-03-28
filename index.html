@@ -30,8 +30,8 @@ button { cursor: pointer; }
 .card-delta { font-size: 11px; font-weight: 600; margin-top: 2px; }
 .section { background: white; border-radius: 12px; border: 1px solid #f3f4f6; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 14px; }
 .section-head { padding: 8px 16px; font-size: 13px; font-weight: 700; }
-.section-head.blue  { background: #eef2ff; color: #4338ca; }
-.section-head.red   { background: #fff1f2; color: #be123c; }
+.section-head.blue { background: #eef2ff; color: #4338ca; }
+.section-head.red { background: #fff1f2; color: #be123c; }
 .section-head.green { background: #ecfdf5; color: #065f46; }
 .cat-row { padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f9fafb; user-select: none; }
 .cat-row:hover { background: #fafafa; }
@@ -102,11 +102,10 @@ button { cursor: pointer; }
 const DEFAULT_CATS = ["Housing","Groceries","Dining","Transport","Health","Leisure","Subscriptions","Travel","Other"];
 const INVEST_CAT = "Investing";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
 let _uid = 0;
 const uid = () => "i" + (++_uid);
-const ni  = () => ({ id: uid(), label: "", amount: "", recurring: false });
-const mk  = (y, m) => `${y}-${String(m).padStart(2,"0")}`;
+const ni = () => ({ id: uid(), label: "", amount: "", recurring: false });
+const mk = (y, m) => `${y}-${String(m).padStart(2,"0")}`;
 const pmk = (y, m) => m === 0 ? mk(y-1, 11) : mk(y, m-1);
 const fmt = n => n == null ? "—" : "€" + Number(n).toLocaleString("en-BE", {minimumFractionDigits:0, maximumFractionDigits:0});
 const pct = (a, b) => (b == null || b === 0) ? null : ((a - b) / b * 100).toFixed(1);
@@ -188,7 +187,7 @@ const state = {
   syncStatus: "idle",
   syncError: "",
   data: {},
-  year:  Number(localStorage.getItem("budget-year"))  || new Date().getFullYear(),
+  year: Number(localStorage.getItem("budget-year")) || new Date().getFullYear(),
   month: Number(localStorage.getItem("budget-month")) >= 0 ? Number(localStorage.getItem("budget-month")) : new Date().getMonth(),
   cats: [...DEFAULT_CATS],
   tab: "entry",
@@ -201,20 +200,39 @@ const state = {
   storage: null,
 };
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// ── Focus-safe render ─────────────────────────────────────────────────────────
+// KEY FIX: save and restore focus across full DOM rebuilds.
 function render() {
-  document.getElementById("app").innerHTML = "";
-  document.getElementById("app").appendChild(
+  // 1. Save current focus info
+  const active = document.activeElement;
+  const focusId = active ? active.getAttribute("data-fid") : null;
+  const focusPos = active ? active.selectionStart : null;
+
+  // 2. Rebuild DOM
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  app.appendChild(
     !state.scriptUrl ? renderSetup() :
-    !state.loaded    ? renderLoading() :
-                       renderApp()
+    !state.loaded ? renderLoading() :
+    renderApp()
   );
+
+  // 3. Restore focus
+  if (focusId) {
+    const target = document.querySelector(`[data-fid="${focusId}"]`);
+    if (target) {
+      target.focus();
+      if (focusPos != null && typeof target.setSelectionRange === "function") {
+        try { target.setSelectionRange(focusPos, focusPos); } catch(e) {}
+      }
+    }
+  }
 }
 
 // ── Setup ─────────────────────────────────────────────────────────────────────
 function renderSetup() {
   const wrap = el("div", { className: "setup-wrap" });
-  const box  = el("div", { className: "setup-box" });
+  const box = el("div", { className: "setup-box" });
   box.appendChild(el("h1", {}, "💰 Budget Tracker"));
   box.appendChild(el("p", {}, "Connect to Google Sheets to sync data across all devices."));
   const ol = el("ol");
@@ -232,6 +250,7 @@ function renderSetup() {
   box.appendChild(ol);
   if (state.syncError) box.appendChild(el("p", { className: "error-msg" }, "Error: " + state.syncError));
   const inp = el("input", { className: "url-input", type: "text", placeholder: "https://script.google.com/macros/s/...", value: state.urlInput });
+  inp.setAttribute("data-fid", "setup-url");
   inp.addEventListener("input", e => { state.urlInput = e.target.value; });
   inp.addEventListener("keydown", e => { if (e.key === "Enter") connect(); });
   box.appendChild(inp);
@@ -266,7 +285,7 @@ function loadData() {
       for (const k in parsed) {
         const e = parsed[k];
         if (e.incomeItems) e.incomeItems = ensureIds(e.incomeItems);
-        if (e.investing)   e.investing   = ensureIds(e.investing);
+        if (e.investing) e.investing = ensureIds(e.investing);
         if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
       }
       state.data = parsed;
@@ -286,15 +305,20 @@ function loadData() {
     });
 }
 
+// Debounced persist — waits 600ms after the last edit before syncing.
+let _persistTimer = null;
 function persist() {
   if (!state.storage) return;
   state.syncStatus = "saving";
   updateSyncBadge();
-  Promise.all([
-    state.storage.set("budget-data", JSON.stringify(state.data)),
-    state.storage.set("budget-cats", JSON.stringify(state.cats))
-  ]).then(() => { state.syncStatus = "ok"; updateSyncBadge(); })
-    .catch(() => { state.syncStatus = "error"; updateSyncBadge(); });
+  clearTimeout(_persistTimer);
+  _persistTimer = setTimeout(() => {
+    Promise.all([
+      state.storage.set("budget-data", JSON.stringify(state.data)),
+      state.storage.set("budget-cats", JSON.stringify(state.cats))
+    ]).then(() => { state.syncStatus = "ok"; updateSyncBadge(); })
+     .catch(() => { state.syncStatus = "error"; updateSyncBadge(); });
+  }, 600);
 }
 
 function updateSyncBadge() {
@@ -307,9 +331,6 @@ function updateSyncBadge() {
 }
 
 // ── Entry helpers ─────────────────────────────────────────────────────────────
-// Always reads from state.data. If the month doesn't exist yet, seeds it and
-// writes it into state.data immediately (but does NOT persist to Sheets yet —
-// that only happens on actual user edits to avoid spamming empty months).
 function getEntry() {
   const key = mk(state.year, state.month);
   if (!state.data[key]) {
@@ -317,27 +338,39 @@ function getEntry() {
     const inc = seedIncome(state.data, state.year, state.month);
     const base = { income: "", expenses, investing };
     if (inc) base.incomeItems = inc;
-    state.data = { ...state.data, [key]: base };
+    state.data[key] = base;
   }
   return state.data[key];
 }
 
-// Saves current entry to state.data AND persists to Sheets.
-// Always call this after any user edit.
 function saveEntry(entry) {
   const key = mk(state.year, state.month);
-  state.data = { ...state.data, [key]: entry };
+  state.data[key] = entry;
   persist();
 }
 
-function getIncItems() { const e = getEntry(); return e.incomeItems && e.incomeItems.length ? e.incomeItems : [ni()]; }
-function getInvItems() { const e = getEntry(); return Array.isArray(e.investing) && e.investing.length ? e.investing : [ni()]; }
+function getIncItems() {
+  const e = getEntry();
+  if (e.incomeItems && e.incomeItems.length) return e.incomeItems;
+  // Seed once and store so subsequent calls return the SAME array/ids
+  e.incomeItems = [ni()];
+  return e.incomeItems;
+}
+function getInvItems() {
+  const e = getEntry();
+  if (Array.isArray(e.investing) && e.investing.length) return e.investing;
+  e.investing = [ni()];
+  return e.investing;
+}
 function getCatItems(cat) {
   const e = getEntry();
-  const v = e.expenses && e.expenses[cat];
-  if (!v) return [ni()];
-  if (Array.isArray(v)) return v.length ? v : [ni()];
-  return [{ ...ni(), amount: v }];
+  if (!e.expenses) e.expenses = {};
+  const v = e.expenses[cat];
+  if (Array.isArray(v) && v.length) return v;
+  // Seed once and store so IDs are stable
+  const items = v && !Array.isArray(v) ? [{ ...ni(), amount: v }] : [ni()];
+  e.expenses[cat] = items;
+  return items;
 }
 
 // ── Main app ──────────────────────────────────────────────────────────────────
@@ -393,11 +426,11 @@ function renderApp() {
   const totalInc = entryIncome(entry);
   const totalExp = state.cats.reduce((s, c) => s + listTotal(entry.expenses && entry.expenses[c]), 0);
   const totalInv = listTotal(entry.investing);
-  const netCash  = totalInc - totalExp - totalInv;
-  const savRate  = totalInc > 0 ? (netCash / totalInc * 100).toFixed(1) : null;
-  const t12Inc   = trail12Inc(state.data, state.year, state.month);
-  const t12Inv   = trail12(state.data, state.year, state.month, INVEST_CAT);
-  const t12Sav   = (() => {
+  const netCash = totalInc - totalExp - totalInv;
+  const savRate = totalInc > 0 ? (netCash / totalInc * 100).toFixed(1) : null;
+  const t12Inc = trail12Inc(state.data, state.year, state.month);
+  const t12Inv = trail12(state.data, state.year, state.month, INVEST_CAT);
+  const t12Sav = (() => {
     const vals = [];
     for (let i = 1; i <= 12; i++) {
       let pm = state.month - i, py = state.year;
@@ -412,10 +445,10 @@ function renderApp() {
 
   const sumGrid = el("div", { className: "summary-grid" });
   [
-    { label:"Income",    val:fmt(totalInc||null), sub:t12Inc?"avg "+fmt(t12Inc):"no history", delta:t12Inc?pct(totalInc,t12Inc):null, inv:false, exp:false },
-    { label:"Expenses",  val:fmt(totalExp||null), sub:null, delta:null, inv:false, exp:true },
+    { label:"Income", val:fmt(totalInc||null), sub:t12Inc?"avg "+fmt(t12Inc):"no history", delta:t12Inc?pct(totalInc,t12Inc):null, inv:false, exp:false },
+    { label:"Expenses", val:fmt(totalExp||null), sub:null, delta:null, inv:false, exp:true },
     { label:"Investing", val:fmt(totalInv||null), sub:t12Inv?"avg "+fmt(t12Inv):null, delta:invDelta, inv:true, exp:false },
-    { label:"Net Cash",  val:fmt(netCash||null),  sub:savRate?savRate+"% rate":null, delta:t12Sav!=null?pct(netCash,t12Sav):null, inv:false, exp:false },
+    { label:"Net Cash", val:fmt(netCash||null), sub:savRate?savRate+"% rate":null, delta:t12Sav!=null?pct(netCash,t12Sav):null, inv:false, exp:false },
   ].forEach(({ label, val, sub, delta, inv, exp }) => {
     const card = el("div", { className: "card" });
     card.appendChild(el("div", { className: "card-label" }, label));
@@ -430,8 +463,8 @@ function renderApp() {
   });
   content.appendChild(sumGrid);
 
-  if (state.tab === "entry")  content.appendChild(renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta));
-  if (state.tab === "chart")  content.appendChild(renderChart(entry));
+  if (state.tab === "entry") content.appendChild(renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta));
+  if (state.tab === "chart") content.appendChild(renderChart(entry));
   if (state.tab === "trends") content.appendChild(renderTrends());
 
   root.appendChild(content);
@@ -442,10 +475,10 @@ function renderApp() {
 function renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta) {
   const wrap = el("div");
   const incItems = getIncItems();
-  const incRC    = incItems.filter(i => i.recurring).length;
+  const incRC = incItems.filter(i => i.recurring).length;
   const totalInc = entryIncome(entry);
   const invItems = getInvItems();
-  const invRC    = invItems.filter(i => i.recurring).length;
+  const invRC = invItems.filter(i => i.recurring).length;
   const totalInv = listTotal(entry.investing);
 
   // ── Income ──
@@ -454,12 +487,12 @@ function renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta) {
   incSec.appendChild(renderCatRow("Total income", totalInc, t12Inc, incRC, state.incomeOpen, false,
     () => { state.incomeOpen = !state.incomeOpen; render(); }, null));
   if (state.incomeOpen) {
-    incSec.appendChild(renderExpand(incItems,
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, incomeItems: updateItem(getIncItems(), id, "label", v) }); },
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, incomeItems: updateItem(getIncItems(), id, "amount", v) }); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, incomeItems: toggleItem(getIncItems(), id) }); render(); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, incomeItems: removeItem(getIncItems(), id) }); render(); },
-      ()      => { const e = getEntry(); saveEntry({ ...e, incomeItems: [...getIncItems(), ni()] }); render(); },
+    incSec.appendChild(renderExpand("income", incItems,
+      (id, v) => { updateItemInPlace(incItems, id, "label", v); saveEntry(getEntry()); },
+      (id, v) => { updateItemInPlace(incItems, id, "amount", v); saveEntry(getEntry()); },
+      (id) => { const e = getEntry(); e.incomeItems = toggleItem(incItems, id); saveEntry(e); render(); },
+      (id) => { const e = getEntry(); e.incomeItems = removeItem(incItems, id); saveEntry(e); render(); },
+      () => { const e = getEntry(); e.incomeItems = [...incItems, ni()]; saveEntry(e); render(); },
       "Add income source", incRC
     ));
   }
@@ -471,22 +504,23 @@ function renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta) {
   state.cats.forEach(cat => {
     const items = getCatItems(cat);
     const total = listTotal(entry.expenses && entry.expenses[cat]);
-    const avg   = trail12(state.data, state.year, state.month, cat);
-    const d     = avg != null && total > 0 ? pct(total, avg) : null;
-    const rc    = items.filter(i => i.recurring).length;
+    const avg = trail12(state.data, state.year, state.month, cat);
+    const d = avg != null && total > 0 ? pct(total, avg) : null;
+    const rc = items.filter(i => i.recurring).length;
     const isOpen = !!state.expanded[cat];
+
     expSec.appendChild(renderCatRow(cat, total, avg, rc, isOpen, true,
       () => { state.expanded = { ...state.expanded, [cat]: !isOpen }; render(); },
       () => { state.cats = state.cats.filter(x => x !== cat); persist(); render(); },
       d
     ));
     if (isOpen) {
-      expSec.appendChild(renderExpand(items,
-        (id, v) => { const e = getEntry(); const its = updateItem(getCatItems(cat), id, "label", v); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); },
-        (id, v) => { const e = getEntry(); const its = updateItem(getCatItems(cat), id, "amount", v); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: its } }); },
-        (id)    => { const e = getEntry(); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: toggleItem(getCatItems(cat), id) } }); render(); },
-        (id)    => { const e = getEntry(); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: removeItem(getCatItems(cat), id) } }); render(); },
-        ()      => { const e = getEntry(); saveEntry({ ...e, expenses: { ...e.expenses, [cat]: [...getCatItems(cat), ni()] } }); render(); },
+      expSec.appendChild(renderExpand("exp-" + cat, items,
+        (id, v) => { updateItemInPlace(items, id, "label", v); saveEntry(getEntry()); },
+        (id, v) => { updateItemInPlace(items, id, "amount", v); saveEntry(getEntry()); },
+        (id) => { const e = getEntry(); e.expenses[cat] = toggleItem(items, id); saveEntry(e); render(); },
+        (id) => { const e = getEntry(); e.expenses[cat] = removeItem(items, id); saveEntry(e); render(); },
+        () => { const e = getEntry(); e.expenses[cat] = [...items, ni()]; saveEntry(e); render(); },
         "Add item", rc
       ));
     }
@@ -503,12 +537,12 @@ function renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta) {
   invSec.appendChild(renderCatRow("Total invested", totalInv, t12Inv, invRC, state.investOpen, false,
     () => { state.investOpen = !state.investOpen; render(); }, null, invDelta, true));
   if (state.investOpen) {
-    invSec.appendChild(renderExpand(invItems,
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, investing: updateItem(getInvItems(), id, "label", v) }); },
-      (id, v) => { const e = getEntry(); saveEntry({ ...e, investing: updateItem(getInvItems(), id, "amount", v) }); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, investing: toggleItem(getInvItems(), id) }); render(); },
-      (id)    => { const e = getEntry(); saveEntry({ ...e, investing: removeItem(getInvItems(), id) }); render(); },
-      ()      => { const e = getEntry(); saveEntry({ ...e, investing: [...getInvItems(), ni()] }); render(); },
+    invSec.appendChild(renderExpand("invest", invItems,
+      (id, v) => { updateItemInPlace(invItems, id, "label", v); saveEntry(getEntry()); },
+      (id, v) => { updateItemInPlace(invItems, id, "amount", v); saveEntry(getEntry()); },
+      (id) => { const e = getEntry(); e.investing = toggleItem(invItems, id); saveEntry(e); render(); },
+      (id) => { const e = getEntry(); e.investing = removeItem(invItems, id); saveEntry(e); render(); },
+      () => { const e = getEntry(); e.investing = [...invItems, ni()]; saveEntry(e); render(); },
       "Add investment", invRC
     ));
   }
@@ -517,6 +551,7 @@ function renderEntry(entry, totalExp, t12Inc, t12Inv, invDelta) {
   // ── Add category ──
   const addRow = el("div", { className: "add-row" });
   const addInp = el("input", { className: "add-input", type: "text", placeholder: "Add expense category…", value: state.newCat });
+  addInp.setAttribute("data-fid", "add-cat");
   addInp.addEventListener("input", e => { state.newCat = e.target.value; });
   addInp.addEventListener("keydown", e => { if (e.key === "Enter") addCat(); });
   const addBtn = el("button", { className: "add-btn" }, "Add");
@@ -546,9 +581,14 @@ function addCat() {
 }
 
 // ── Item list helpers ─────────────────────────────────────────────────────────
-function updateItem(list, id, field, val) { return list.map(it => it.id === id ? { ...it, [field]: val } : it); }
-function toggleItem(list, id)             { return list.map(it => it.id === id ? { ...it, recurring: !it.recurring } : it); }
-function removeItem(list, id)             { const r = list.filter(it => it.id !== id); return r.length ? r : [ni()]; }
+// KEY FIX: mutate the item in place so no new array/objects are created.
+// This means the DOM doesn't need to be rebuilt — only the data changes.
+function updateItemInPlace(list, id, field, val) {
+  const item = list.find(it => it.id === id);
+  if (item) item[field] = val;
+}
+function toggleItem(list, id) { return list.map(it => it.id === id ? { ...it, recurring: !it.recurring } : it); }
+function removeItem(list, id) { const r = list.filter(it => it.id !== id); return r.length ? r : [ni()]; }
 
 // ── Row / expand renderers ────────────────────────────────────────────────────
 function renderCatRow(name, total, avg, rc, isOpen, showRemove, onToggle, onRemove, delta, isInvesting) {
@@ -572,25 +612,33 @@ function renderCatRow(name, total, avg, rc, isOpen, showRemove, onToggle, onRemo
   return row;
 }
 
-function renderExpand(items, onLabel, onAmount, onToggleRec, onRemove, onAdd, addLabel, rc) {
+function renderExpand(section, items, onLabel, onAmount, onToggleRec, onRemove, onAdd, addLabel, rc) {
   const area = el("div", { className: "expand-area" });
   items.forEach(item => {
     const row = el("div", { className: "item-row" });
     const recBtn = el("button", { className: "recur-btn" + (item.recurring ? " on" : ""), title: item.recurring ? "Recurring — click to disable" : "Repeat every month" }, "🔁");
     recBtn.addEventListener("click", () => onToggleRec(item.id));
+
     const labelInp = el("input", { className: "item-label", type: "text", value: item.label, placeholder: "Description" });
+    labelInp.setAttribute("data-fid", section + "-label-" + item.id);
     labelInp.addEventListener("input", e => onLabel(item.id, e.target.value));
+
     const eurSpan = el("span", { className: "eur" }, "€");
+
     const amtInp = el("input", { className: "item-amount", type: "number", min: "0", value: item.amount, placeholder: "0" });
+    amtInp.setAttribute("data-fid", section + "-amt-" + item.id);
     amtInp.addEventListener("input", e => onAmount(item.id, e.target.value));
+
     const rmBtn = el("button", { className: "remove-btn", style: "font-size:15px;" }, "✕");
     rmBtn.addEventListener("click", () => onRemove(item.id));
+
     row.appendChild(recBtn); row.appendChild(labelInp); row.appendChild(eurSpan); row.appendChild(amtInp); row.appendChild(rmBtn);
     area.appendChild(row);
   });
   const addBtn = el("button", { className: "add-item-btn" }, "＋ " + addLabel);
   addBtn.addEventListener("click", onAdd);
   area.appendChild(addBtn);
+
   const filled = items.filter(i => Number(i.amount) > 0).length;
   if (filled > 1) {
     const tot = items.reduce((s, x) => s + (Number(x.amount) || 0), 0);
@@ -609,10 +657,12 @@ function renderChart(entry) {
     cat, cur: listTotal(entry.expenses && entry.expenses[cat]),
     avg: trail12(state.data, state.year, state.month, cat)
   })).filter(d => d.cur > 0 || d.avg != null);
+
   if (pairs.length === 0) {
     wrap.appendChild(el("div", { style: "text-align:center;color:#9ca3af;padding:40px 0;font-size:13px;" }, "Enter expenses in the Entry tab to see the chart."));
     return wrap;
   }
+
   const leg = el("div", { className: "legend" });
   [["#6366f1","This month"],["#c7d2fe","12m avg"]].forEach(([color, label]) => {
     const item = el("span");
@@ -621,13 +671,14 @@ function renderChart(entry) {
     leg.appendChild(item);
   });
   wrap.appendChild(leg);
+
   const maxVal = Math.max(...pairs.map(p => Math.max(p.cur, p.avg || 0)), 1);
   pairs.forEach(({ cat, cur, avg }) => {
     const row = el("div", { className: "bar-row" });
     row.appendChild(el("span", { className: "bar-label", title: cat }, cat));
     const track = el("div", { className: "bar-track", style: "position:relative;height:32px;" });
     if (avg != null) track.appendChild(el("div", { className: "bar-fill", style: `background:#c7d2fe;width:${(avg/maxVal*100).toFixed(1)}%;height:32px;position:absolute;top:0;left:0;border-radius:4px;` }));
-    if (cur > 0)     track.appendChild(el("div", { className: "bar-fill", style: `background:#6366f1;width:${(cur/maxVal*100).toFixed(1)}%;height:18px;position:absolute;top:7px;left:0;border-radius:4px;` }));
+    if (cur > 0) track.appendChild(el("div", { className: "bar-fill", style: `background:#6366f1;width:${(cur/maxVal*100).toFixed(1)}%;height:18px;position:absolute;top:7px;left:0;border-radius:4px;` }));
     row.appendChild(track);
     row.appendChild(el("span", { className: "bar-val" }, fmt(cur)));
     wrap.appendChild(row);
@@ -639,7 +690,6 @@ function renderChart(entry) {
 function renderTrends() {
   const wrap = el("div");
 
-  // Sparkline
   const topWrap = el("div", { className: "chart-wrap" });
   const titleRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;" });
   titleRow.appendChild(el("span", { className: "chart-title" }, "Monthly trend (13 months)"));
@@ -667,7 +717,6 @@ function renderTrends() {
     }
     pts.push({ label: MONTHS[pm], val });
   }
-
   const maxV = Math.max(...pts.map(p => p.val), 1);
   const W = 600, H = 140, PAD = 30;
   const xs = pts.map((_, i) => PAD + i * (W - PAD*2) / (pts.length - 1));
@@ -676,6 +725,7 @@ function renderTrends() {
   const fillD = `M${xs[0].toFixed(1)},${H-PAD} ` + xs.map((x,i) => `L${x.toFixed(1)},${ys[i].toFixed(1)}`).join(" ") + ` L${xs[xs.length-1].toFixed(1)},${H-PAD} Z`;
   const color = state.trendCat === INVEST_CAT ? "#10b981" : "#6366f1";
   const fillColor = state.trendCat === INVEST_CAT ? "#d1fae5" : "#e0e7ff";
+
   let svgHtml = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:150px;">`;
   for (let i = 0; i <= 4; i++) {
     const y = PAD + (H-PAD*2)*i/4;
@@ -708,7 +758,6 @@ function renderTrends() {
     const inv = e ? listTotal(e.investing) : 0;
     ovPts.push({ label: MONTHS[pm], inc, exp, inv, sav: inc - exp - inv });
   }
-
   const ovMax = Math.max(...ovPts.map(p => Math.max(p.inc, p.exp, p.inv, Math.max(0, p.sav))), 1);
   const bW = 600, bH = 160, bPadL = 36, bPadR = 10, bPadT = 10, bPadB = 20;
   const chartW = bW - bPadL - bPadR;
