@@ -378,9 +378,8 @@ function saveEntry(entry) {
 function ensureEntry() {
   const key = mk(state.year, state.month);
   if (!state.data[key]) {
-    const entry = getEntry();
-    state.data = { ...state.data, [key]: entry };
-    persist();
+    getEntry(); // this now writes to state.data
+    persist();  // immediately save to Google Sheets
   }
 }
 
@@ -424,6 +423,8 @@ function renderApp() {
   prevBtn.addEventListener("click", () => {
     ensureEntry();
     if (state.month === 0) { state.month = 11; state.year--; } else state.month--;
+    localStorage.setItem("budget-month", state.month);
+    localStorage.setItem("budget-year", state.year);
     render();
   });
   nav.appendChild(prevBtn);
@@ -432,6 +433,8 @@ function renderApp() {
   nextBtn.addEventListener("click", () => {
     ensureEntry();
     if (state.month === 11) { state.month = 0; state.year++; } else state.month++;
+    localStorage.setItem("budget-month", state.month);
+    localStorage.setItem("budget-year", state.year);
     render();
   });
   nav.appendChild(nextBtn);
