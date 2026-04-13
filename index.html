@@ -102,7 +102,7 @@ button { cursor: pointer; }
 const DEFAULT_CATS = ["Housing","Groceries","Dining","Transport","Health","Leisure","Subscriptions","Travel","Other"];
 const INVEST_CAT = "Investing";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-let _uid = 0;
+let _uid = Date.now();
 const uid = () => "i" + (++_uid);
 const ni = () => ({ id: uid(), label: "", amount: "", recurring: false });
 const mk = (y, m) => `${y}-${String(m).padStart(2,"0")}`;
