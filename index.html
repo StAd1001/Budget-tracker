@@ -105,6 +105,8 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 let _uid = Date.now();
 const uid = () => "i" + (++_uid);
 const ni = () => ({ id: uid(), label: "", amount: "", recurring: false });
+// seriesId: shared by every monthly copy of the same recurring line, so an edit can find its copies
+const newSid = () => "s" + (++_uid);
 const mk = (y, m) => `${y}-${String(m).padStart(2,"0")}`;
 const pmk = (y, m) => m === 0 ? mk(y-1, 11) : mk(y, m-1);
 const fmt = n => n == null ? "—" : "€" + Number(n).toLocaleString("en-BE", {minimumFractionDigits:0, maximumFractionDigits:0});
@@ -147,8 +149,7 @@ function trail12Inc(data, y, m) {
   }
   return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
 }
-function seedMonth(data, y, m, cats) {
-  const prev = data[pmk(y, m)];
+function seedMonth(prev, cats) {
   if (!prev) return { expenses: {}, investing: [] };
   const expenses = {};
   for (const cat in (prev.expenses || {})) {
@@ -160,11 +161,97 @@ function seedMonth(data, y, m, cats) {
     .filter(i => i.recurring).map(i => ({ ...i, id: uid() }));
   return { expenses, investing };
 }
-function seedIncome(data, y, m) {
-  const prev = data[pmk(y, m)];
+function seedIncome(prev) {
   if (!prev || !prev.incomeItems) return null;
   const r = prev.incomeItems.filter(i => i.recurring);
   return r.length ? r.map(i => ({ ...i, id: uid() })) : null;
+}
+
+// ── Recurring series ──────────────────────────────────────────────────────────
+// A "section" is the same string renderExpand uses: "income", "invest" or "exp-<category>".
+function listFor(entry, section) {
+  if (!entry) return null;
+  if (section === "income") return entry.incomeItems;
+  if (section === "invest") return entry.investing;
+  return (entry.expenses || {})[section.slice(4)];
+}
+function sectionsOf(entry) {
+  return ["income", "invest", ...Object.keys(entry.expenses || {}).map(c => "exp-" + c)];
+}
+const normLabel = l => String(l || "").trim().toLowerCase();
+const sameVal = (a, b) => String(a == null ? "" : a).trim() === String(b == null ? "" : b).trim();
+
+// Migration for data created before seriesId existed: walk the months in order and
+// link an item to last month's recurring item with the same description (same section).
+// Only links when the match is unambiguous; otherwise a recurring item starts its own series.
+// Safe to run on every load: items that already have a seriesId are skipped.
+function linkSeries(data) {
+  for (const key of Object.keys(data).sort()) {
+    const mt = /^(\d{4})-(\d{2})$/.exec(key);
+    if (!mt) continue;
+    const e = data[key];
+    const prev = data[pmk(Number(mt[1]), Number(mt[2]))];
+    for (const section of sectionsOf(e)) {
+      const list = listFor(e, section);
+      if (!Array.isArray(list)) continue;
+      const prevList = listFor(prev, section);
+      for (const it of list) {
+        if (it.seriesId) continue;
+        const lab = normLabel(it.label);
+        let match = null;
+        if (lab && Array.isArray(prevList)) {
+          const cands = prevList.filter(p => p.recurring && p.seriesId && normLabel(p.label) === lab);
+          const dupesHere = list.filter(o => normLabel(o.label) === lab).length;
+          if (cands.length === 1 && dupesHere === 1 && !list.some(o => o.seriesId === cands[0].seriesId)) match = cands[0];
+        }
+        if (match) it.seriesId = match.seriesId;
+        else if (it.recurring) it.seriesId = newSid();
+      }
+    }
+  }
+}
+
+// Push a label/amount edit of a recurring line forward into later months that already exist.
+// - only months whose copy still has the OLD value are changed (deliberate differences are kept)
+// - stops at the first missing month or the first month where the series no longer exists
+// - months before the current calendar month are only changed after a confirm()
+function propagateSeries(section, seriesId, field, oldVal, newVal) {
+  const targets = [];
+  let y = state.year, m = state.month;
+  for (let guard = 0; guard < 600; guard++) {
+    if (m === 11) { m = 0; y++; } else m++;
+    const key = mk(y, m);
+    const list = listFor(state.data[key], section);
+    if (!Array.isArray(list)) break;
+    const it = list.find(x => x.seriesId === seriesId);
+    if (!it) break;
+    if (sameVal(it[field], oldVal)) targets.push({ key, y, m, it });
+  }
+  if (!targets.length) return;
+  const now = new Date();
+  const nowKey = mk(now.getFullYear(), now.getMonth());
+  const past = targets.filter(t => t.key < nowKey);
+  let apply = targets.filter(t => t.key >= nowKey);
+  if (past.length) {
+    const names = past.map(t => MONTHS[t.m] + " " + t.y).join(", ");
+    const ok = confirm("Also apply this change to " + past.length + " earlier month" + (past.length > 1 ? "s" : "") +
+      " (" + names + ")?\n\nCurrent and future months are updated automatically.");
+    if (ok) apply = targets;
+  }
+  if (!apply.length) return;
+  apply.forEach(t => { t.it[field] = newVal; });
+  persist();
+}
+
+// Value of the field when the user started editing it (set on focus, used on change)
+let _editStart = null;
+function commitEdit(section, items, id, field, newVal) {
+  const start = _editStart;
+  _editStart = null;
+  const item = items.find(it => it.id === id);
+  if (!item || !item.seriesId || !start || start.id !== id || start.field !== field) return;
+  if (sameVal(start.val, newVal)) return;
+  propagateSeries(section, item.seriesId, field, start.val, newVal);
 }
 
 // ── Storage ───────────────────────────────────────────────────────────────────
@@ -194,7 +281,7 @@ const state = {
   syncError: "",
   data: {},
   year: Number(localStorage.getItem("budget-year")) || new Date().getFullYear(),
-  month: Number(localStorage.getItem("budget-month")) >= 0 ? Number(localStorage.getItem("budget-month")) : new Date().getMonth(),
+  month: (() => { const v = localStorage.getItem("budget-month"); return v !== null && Number(v) >= 0 && Number(v) <= 11 ? Number(v) : new Date().getMonth(); })(),
   cats: [...DEFAULT_CATS],
   tab: "entry",
   newCat: "",
@@ -300,6 +387,8 @@ function loadData() {
         if (e.investing) e.investing = ensureIds(e.investing);
         if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
       }
+      linkSeries(parsed);
+      _drafts = {};
       state.data = parsed;
       state.cats = c ? JSON.parse(c) : [...DEFAULT_CATS];
       state.storage = s;
@@ -332,6 +421,8 @@ function loadData() {
             if (e.investing) e.investing = ensureIds(e.investing);
             if (e.expenses) for (const cat in e.expenses) e.expenses[cat] = ensureIds(e.expenses[cat]);
           }
+          linkSeries(parsed);
+          _drafts = {};
           state.data = parsed;
         }
         if (localCats) state.cats = JSON.parse(localCats);
@@ -345,6 +436,7 @@ function loadData() {
 // Debounced persist — only syncs to Sheets if Sheets loaded successfully.
 let _persistTimer = null;
 function persist() {
+  _drafts = {}; // data changed -> unsaved drafts may be stale; they are rebuilt on next render
   if (!sheetsLoaded) return; // Never overwrite Sheets with stale/empty data
 
   // Cache to localStorage as backup
@@ -377,22 +469,41 @@ function updateSyncBadge() {
 }
 
 // ── Entry helpers ─────────────────────────────────────────────────────────────
+// Drafts: a month you only LOOK at is seeded into _drafts (not saved).
+// It moves into state.data (and gets saved) the first time you edit it.
+// getEntry() returns the SAME draft object on every call, so edits are never lost.
+let _drafts = {};
 function getEntry() {
   const key = mk(state.year, state.month);
-  if (!state.data[key]) {
-    const { expenses, investing } = seedMonth(state.data, state.year, state.month, state.cats);
-    const inc = seedIncome(state.data, state.year, state.month);
+  if (state.data[key]) return state.data[key];
+  if (!_drafts[key]) {
+    const pk = pmk(state.year, state.month);
+    const prev = state.data[pk] || _drafts[pk];
+    const { expenses, investing } = seedMonth(prev, state.cats);
+    const inc = seedIncome(prev);
     const base = { income: "", expenses, investing };
     if (inc) base.incomeItems = inc;
-    state.data[key] = base;
+    _drafts[key] = base;
   }
-  return state.data[key];
+  return _drafts[key];
 }
 
 function saveEntry(entry) {
   const key = mk(state.year, state.month);
+  const wasDraft = _drafts[key] === entry;
   state.data[key] = entry;
-  persist();
+  if (wasDraft) {
+    // This draft was seeded from earlier drafts (months you stepped through without editing).
+    // Save that chain too, so the saved data matches what this month was copied from.
+    let y = state.year, m = state.month;
+    while (true) {
+      if (m === 0) { m = 11; y--; } else m--;
+      const k = mk(y, m);
+      if (state.data[k] || !_drafts[k]) break;
+      state.data[k] = _drafts[k];
+    }
+  }
+  persist(); // also clears the remaining drafts
 }
 
 function getIncItems() {
@@ -633,7 +744,11 @@ function updateItemInPlace(list, id, field, val) {
   const item = list.find(it => it.id === id);
   if (item) item[field] = val;
 }
-function toggleItem(list, id) { return list.map(it => it.id === id ? { ...it, recurring: !it.recurring } : it); }
+function toggleItem(list, id) {
+  return list.map(it => it.id === id
+    ? { ...it, recurring: !it.recurring, seriesId: it.seriesId || (!it.recurring ? newSid() : undefined) }
+    : it);
+}
 function removeItem(list, id) { const r = list.filter(it => it.id !== id); return r.length ? r : [ni()]; }
 
 // ── Row / expand renderers ────────────────────────────────────────────────────
@@ -658,6 +773,13 @@ function renderCatRow(name, total, avg, rc, isOpen, showRemove, onToggle, onRemo
   return row;
 }
 
+// Remember the value at the start of an edit. If render() re-focuses the same field
+// mid-edit, keep the original start value instead of overwriting it.
+function startEdit(item, field) {
+  if (_editStart && _editStart.id === item.id && _editStart.field === field) return;
+  _editStart = { id: item.id, field, val: item[field] };
+}
+
 function renderExpand(section, items, onLabel, onAmount, onToggleRec, onRemove, onAdd, addLabel, rc) {
   const area = el("div", { className: "expand-area" });
   items.forEach(item => {
@@ -668,12 +790,16 @@ function renderExpand(section, items, onLabel, onAmount, onToggleRec, onRemove, 
     const labelInp = el("input", { className: "item-label", type: "text", value: item.label, placeholder: "Description" });
     labelInp.setAttribute("data-fid", section + "-label-" + item.id);
     labelInp.addEventListener("input", e => onLabel(item.id, e.target.value));
+    labelInp.addEventListener("focus", () => startEdit(item, "label"));
+    labelInp.addEventListener("change", e => commitEdit(section, items, item.id, "label", e.target.value));
 
     const eurSpan = el("span", { className: "eur" }, "€");
 
     const amtInp = el("input", { className: "item-amount", type: "number", min: "0", value: item.amount, placeholder: "0" });
     amtInp.setAttribute("data-fid", section + "-amt-" + item.id);
     amtInp.addEventListener("input", e => onAmount(item.id, e.target.value));
+    amtInp.addEventListener("focus", () => startEdit(item, "amount"));
+    amtInp.addEventListener("change", e => commitEdit(section, items, item.id, "amount", e.target.value));
 
     const rmBtn = el("button", { className: "remove-btn", style: "font-size:15px;" }, "✕");
     rmBtn.addEventListener("click", () => onRemove(item.id));
@@ -753,7 +879,7 @@ function renderTrends() {
   for (let i = 12; i >= 0; i--) {
     let pm = state.month - i, py = state.year;
     if (pm < 0) { pm += 12; py--; }
-    const e = state.data[mk(py, pm)];
+    const e = state.data[mk(py, pm)] || (i === 0 ? getEntry() : null);
     let val = 0;
     if (e) {
       if (state.trendCat === "Income") val = entryIncome(e);
@@ -798,7 +924,7 @@ function renderTrends() {
   for (let i = 12; i >= 0; i--) {
     let pm = state.month - i, py = state.year;
     if (pm < 0) { pm += 12; py--; }
-    const e = state.data[mk(py, pm)];
+    const e = state.data[mk(py, pm)] || (i === 0 ? getEntry() : null);
     const inc = e ? entryIncome(e) : 0;
     const exp = e ? state.cats.reduce((s,c) => s + listTotal(e.expenses && e.expenses[c]), 0) : 0;
     const inv = e ? listTotal(e.investing) : 0;
